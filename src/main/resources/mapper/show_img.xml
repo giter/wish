@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.ShowImgDao">
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="ShowImgBean" useGeneratedKeys="true" keyProperty="id">
+        insert into show_img
+        (img_path,view_order,real_name,status,useflag,insert_time,insert_id)
+        values
+        (#{imgPath},#{viewOrder},#{realName},#{status},1,now(),#{insertId})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update show_img SET
+        update_time=now()
+			<if test="imgPath != null">,img_path=#{imgPath}</if>
+			<if test="realName != null">,real_name=#{realName}</if>
+			<if test="status != null">,status=#{status}</if>
+			<if test="viewOrder != null">,view_order=#{viewOrder}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="ShowImgBean" >
+        update show_img
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="ShowImgBean">
+        SELECT
+        *
+        FROM show_img
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="ShowImgBean">
+        SELECT
+        *
+        FROM show_img
+        WHERE useflag=1  order by view_order
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="ShowImgBean" >
+        SELECT
+        *
+        FROM show_img
+        WHERE useflag=1
+				<if test="imgPath != null">AND img_path like '%#{imgPath}%'</if>
+				<if test="status != null">AND status=#{status}</if>
+				<if test="realName != null">AND real_name like '%#{realName}%'</if>
+				<if test="viewOrder != null">AND view_order=#{viewOrder}</if>
+    </select>
+
+    <select id="getshowImg" resultType="java.lang.String">
+        SELECT img_path FROM show_img WHERE  useflag=1 AND status=1 ORDER BY view_order
+    </select>
+
+
+</mapper>

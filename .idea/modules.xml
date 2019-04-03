@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/springmvcshiro.iml" filepath="$PROJECT_DIR$/springmvcshiro.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wish.iml" filepath="$PROJECT_DIR$/wish.iml" />
     </modules>
   </component>
 </project>

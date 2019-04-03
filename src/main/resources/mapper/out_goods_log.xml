@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.OutGoodsLogDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="OutGoodsLogBean" useGeneratedKeys="true" keyProperty="id">
+        insert into out_goods_log
+        (machine_id,pay_type,trade_no,slot_no,status,time,amount,product_id,name,type,useflag,insert_time,insert_id)
+        values
+        (#{machineId},#{payType},#{tradeNo},#{slotNo},#{status},#{time},#{amount},#{productId},#{name},#{type},1,now(),#{insertId})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update out_goods_log SET
+        update_time=now()
+			<if test="machineId != null">,machine_id=#{machineId}</if>
+			<if test="payType != null">,pay_type=#{payType}</if>
+			<if test="tradeNo != null">,trade_no=#{tradeNo}</if>
+			<if test="slotNo != null">,slot_no=#{slotNo}</if>
+			<if test="status != null">,status=#{status}</if>
+			<if test="time != null">,time=#{time}</if>
+			<if test="amount != null">,amount=#{amount}</if>
+			<if test="productId != null">,product_id=#{productId}</if>
+			<if test="name != null">,name=#{name}</if>
+			<if test="type != null">,type=#{type}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+		
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="OutGoodsLogBean" >
+        update out_goods_log
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="OutGoodsLogBean">
+        SELECT
+        *
+        FROM out_goods_log
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="OutGoodsLogBean">
+        SELECT
+        *
+        FROM out_goods_log
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="OutGoodsLogBean" >
+        SELECT
+        *
+        FROM out_goods_log
+        WHERE useflag=1
+				<if test="machineId != null">AND machine_id=#{machineId}</if>
+				<if test="payType != null">AND pay_type=#{payType}</if>
+				<if test="tradeNo != null">AND trade_no=#{tradeNo}</if>
+				<if test="slotNo != null">AND slot_no=#{slotNo}</if>
+				<if test="status != null">AND status=#{status}</if>
+				<if test="time != null">AND time=#{time}</if>
+				<if test="amount != null">AND amount=#{amount}</if>
+				<if test="productId != null">AND product_id=#{productId}</if>
+				<if test="name != null">AND name=#{name}</if>
+				<if test="type != null">AND type=#{type}</if>
+
+    </select>
+
+
+</mapper>

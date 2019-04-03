@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.AddGoodsLogDAO">
+
+    <insert id="save" parameterType="AddGoodsLogBean"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_addgoods_log(machine_id,trade_no,slot_no,key_num,status,quantity,stock,capacity,
+        product_id,price,type,insert_time,insert_id)
+        VALUES (#{machineId},#{tradeNo},#{slotNo},#{keyNum},#{status},#{quantity},#{stock},#{capacity},
+        #{productId},#{price},#{type},now(),#{insertId})
+    </insert>
+
+    <select id="findById" resultType="com.wish.bean.AddGoodsLogBean">
+        SELECT * FROM tb_addgoods_log WHERE id=#{id} and useflag=1
+    </select>
+
+    <select id="query" resultType="com.wish.bean.AddGoodsLogBean">
+        SELECT * FROM tb_addgoods_log WHERE useflag=1
+        <if test="machineId != null">AND machine_id=#{machineId}</if>
+        <if test="tradeNo != null">AND trade_no=#{tradeNo}</if>
+        <if test="slotNo != null">AND slot_no=#{slotNo}</if>
+        <if test="keyNum != null">AND key_num=#{keyNum}</if>
+        <if test="status != null">AND status=#{status}</if>
+        <if test="productId != null">AND product_id=#{productId}</if>
+        <if test="type != null">AND type=#{type}</if>
+    </select>
+</mapper>

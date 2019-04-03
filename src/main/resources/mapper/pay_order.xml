@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.PayOrderDao">
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="PayOrderBean" useGeneratedKeys="true" keyProperty="id">
+        insert into pay_order
+        (pay_trade_no,machine_id,total_fee,pay_type,pay_status,buy_num,detail,insert_time,insert_id)
+        values
+        (#{payTradeNo},#{machineId},#{totalFee},#{payType},#{payStatus},#{buyNum},#{detail},now(),#{insertId})
+    </insert>
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update pay_order SET
+        update_time=now()
+			<if test="payTradeNo != null">,pay_trade_no=#{payTradeNo}</if>
+			<if test="totalFee != null">,total_fee=#{totalFee}</if>
+			<if test="machineId != null">,machine_id=#{machineId}</if>
+			<if test="payType != null">,pay_type=#{payType}</if>
+			<if test="payStatus != null">,pay_status=#{payStatus}</if>
+			<if test="buyNum != null">,buy_num=#{buyNum}</if>
+			<if test="outNum != null">,out_num=#{outNum}</if>
+			<if test="detail != null">,detail=#{detail}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+    <update id="addOutCount">
+        UPDATE pay_order SET out_num=out_num+1 WHERE id=#{payOrderId}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="PayOrderBean" >
+        update pay_order
+        SET 1=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="PayOrderBean">
+        SELECT
+        *
+        FROM pay_order
+        WHERE id = #{id}
+
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="PayOrderBean">
+        SELECT
+        *
+        FROM pay_order
+
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="java.util.HashMap" >
+        SELECT a.id,a.pay_trade_no tradeNo,a.insert_time insertTime,a.pay_status status,a.pay_type type,b.nick_name nickName
+        FROM pay_order a
+        LEFT JOIN buyer b on a.insert_id = b.id
+        WHERE 1=1
+        <if test="payTradeNo != null and payTradeNo != '' ">AND a.pay_trade_no=#{payTradeNo}</if>
+        <if test="machineId != null and machineId != '' ">AND a.machine_id=#{machineId}</if>
+        <if test="payType != null">AND a.pay_type=#{payType}</if>
+        <if test="payStatus != null">AND a.pay_status=#{payStatus}</if>
+        <if test="buyerId != null">AND b.id=#{buyerId}</if>
+        <if test="buyerName != null and buyerName != '' ">AND b.nick_name=#{buyerName}</if>
+        <if test="startTime != null"> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d%H%i%s')>=DATE_FORMAT(#{startTime},'%Y%m%d%H%i%s') ]]></if>
+        <if test="endTime != null"> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d%H%i%s')<= DATE_FORMAT(#{endTime},'%Y%m%d%H%i%s') ]]></if>
+
+    </select>
+    <select id="findByTradeNo" resultType="com.wish.bean.PayOrderBean">
+        SELECT
+        *
+        FROM pay_order
+        WHERE pay_trade_no = #{tradeNo}
+    </select>
+
+    <select id="queryDetail" resultType="java.util.HashMap">
+        SELECT
+               a.id,
+               a.pay_trade_no tradeNo,
+               a.insert_time insertTime,
+               a.pay_status as payStatus,
+               a.pay_type type,
+               b.nick_name nickName,
+                c.id as goodsOrderId,
+                c.machine_id as machineId,
+               c.slot_no,
+               c.price,
+               d.name as productName
+        FROM
+             (select * from pay_order WHERE insert_id=#{buyerId} LIMIT #{pageNum},#{pageSize}) a
+                 LEFT JOIN buyer b ON a.insert_id = b.id
+                 LEFT JOIN goods_order c ON c.pay_order_id=a.id
+                 LEFT JOIN tb_product d on d.id=c.product_id
+
+        ORDER BY a.insert_time DESC
+    </select>
+
+    <select id="querydetailCount" resultType="long">
+        SELECT
+               COUNT(1)
+        FROM
+             pay_order a
+        WHERE
+                a.insert_id =#{buyerId}
+    </select>
+
+</mapper>

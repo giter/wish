@@ -25,20 +25,21 @@
      -->
     <mvc:default-servlet-handler/>
 
-    <context:component-scan base-package="com.demo.control"/>
+    <context:component-scan base-package="com.wish.control"/>
 
 
     <!--拦截器-->
-    <!--<mvc:interceptors>-->
-        <!--<mvc:interceptor>-->
-            <!--&lt;!&ndash; 拦截所有URL中包含/user/的请求 &ndash;&gt;-->
-            <!--<mvc:mapping path="/**"/>-->
-            <!--<mvc:exclude-mapping path="/**/fonts/*"/>-->
-            <!--不拦截websocket相关的请求-->
-            <!--<mvc:exclude-mapping path="/websocket/**"/>-->
-            <!--<bean class="com.yunxin.api.LoginInterceptor"/>-->
-        <!--</mvc:interceptor>-->
-    <!--</mvc:interceptors>-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 拦截所有URL中包含/userBean/的请求 -->
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/**/fonts/*"/>
+            <mvc:exclude-mapping path="/index.html"/>
+            <mvc:exclude-mapping path="/403.html"/>
+            <mvc:exclude-mapping path="/static/**"/>
+            <bean class="com.wish.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
 
 
 
@@ -50,9 +51,9 @@
     </bean>
 
     <!-- 4:扫描web相关的bean -->
-    <context:component-scan base-package="com.demo.control"/>
+    <context:component-scan base-package="com.wish.control"/>
     <!--系统启动-->
-    <!--<context:component-scan base-package="com.demo.common.init"/>-->
+    <!--<context:component-scan base-package="com.wish.common.init"/>-->
 
     <!-- 控制器异常处理 -->
     <!--<bean id="exceptionHandlerExceptionResolver" class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver">-->

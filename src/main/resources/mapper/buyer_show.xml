@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.BuyerShowDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="BuyerShowBean" useGeneratedKeys="true" keyProperty="id">
+        insert into buyer_show
+        (buyer_id,machine_id,img,`describe`,note,useflag,insert_time,insert_id)
+        values
+        (#{buyerId},#{machineId},#{img},#{describe},#{note},1,now(),#{insertId})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update buyer_show SET
+        update_time=now()
+			<if test="buyerId != null">,buyer_id=#{buyerId}</if>
+			<if test="machineId != null">,machine_id=#{machineId}</if>
+			<if test="img != null">,img=#{img}</if>
+			<if test="describe != null">,describe=#{describe}</if>
+			<if test="zan != null">,zan=#{zan}</if>
+			<if test="status != null">,status=#{status}</if>
+			<if test="note != null">,note=#{note}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="BuyerShowBean" >
+        update buyer_show
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <update id="zan">
+        UPDATE buyer_show SET zan=zan+1 WHERE  id = #{id}
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="BuyerShowBean">
+        SELECT
+        *
+        FROM buyer_show
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="BuyerShowBean">
+        SELECT
+        *
+        FROM buyer_show
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="java.util.HashMap" >
+        SELECT
+        a.*,b.nick_name
+        FROM
+        buyer_show a
+        JOIN buyer b on a.buyer_id = b.id
+        WHERE a.useflag=1
+				<if test="name != null">AND b.nick_name LIKE '%${name}%'</if>
+				<if test="status != null">AND a.status=#{status}</if>
+				<if test="buyerId != null">AND a.buyer_id=#{buyerId}</if>
+        <if test="startTime != null"> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d')>=DATE_FORMAT(#{startTime},'%Y%m%d') ]]></if>
+        <if test="endTime != null"> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d')<= DATE_FORMAT(#{endTime},'%Y%m%d%') ]]></if>
+
+        order by a.insert_time desc
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.PaperDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="PaperBean" useGeneratedKeys="true" keyProperty="id">
+        insert into paper
+        (question_id,answer,useflag,insert_time,insert_id)
+        values
+        (#{question_id},#{answer},1,now(),#{insert_time},#{insert_id})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update paper SET
+        update_time=now()
+			<if test="questionId != null">,question_id=#{questionId}</if>
+			<if test="answer != null">,answer=#{answer}</if>
+			<if test="useflag != null">,useflag=#{useflag}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="PaperBean" >
+        update paper
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="PaperBean">
+        SELECT
+        *
+        FROM paper
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="PaperBean">
+        SELECT
+        *
+        FROM paper
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="PaperBean" >
+        SELECT
+        *
+        FROM paper
+        WHERE useflag=1
+				<if test="item.questionId != null">AND question_id=#{item}</if>
+				<if test="item.answer != null">AND answer=#{item}</if>
+    </select>
+
+
+</mapper>

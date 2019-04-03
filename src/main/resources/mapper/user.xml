@@ -3,24 +3,104 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--namespace 为接口-->
-<mapper namespace="com.demo.dao.UserDAO">
-    <!--目的：提供接口方法的sql语句配置-->
+<mapper namespace="com.wish.dao.UserDAO">
+    <update id="deleteUsers">
+      UPDATE user SET useflag=0 WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
+    <update id="update" parameterType="UserBean">
+      UPDATE user SET
+        update_time=now()
+        <if test="userBean.username != null">
+            ,username=#{userBean.username}
+        </if>
+        <if test="userBean.password != null">
+            ,password=#{userBean.password}
+        </if>
+        <if test="userBean.name != null" >
+            , name=#{userBean.name}
+        </if>
+        <if test="userBean.sex != null" >
+            , sex=#{userBean.sex}
+        </if>
+        <if test="userBean.phone != null" >
+            , phone=#{userBean.phone}
+        </if>
+        <if test="userBean.img != null" >
+            , img=#{userBean.img}
+        </if>
+        <if test="userBean.updateId != null" >
+            , update_id=#{userBean.updateId}
+        </if>
+      WHERE id=#{userBean.id}
+    </update>
+    <!--目的：提供接口方法的sql语句配置 权限的必要配置结束-->
     <select id="findRoles" resultType="java.lang.String">
         select role from user u, role r,user_role ur where u.username=#{username} and u.id=ur.user_id and r.id=ur.role_id
     </select>
     <select id="findPermissions" resultType="string">
         select permission from user u, role r, permission p, user_role ur, role_permission rp where u.username=#{username} and u.id=ur.user_id and r.id=ur.role_id and r.id=rp.role_id and p.id=rp.permission_id
     </select>
-    <select id="findUser" resultType="user">
+    <select id="findUser" resultType="userBean">
         SELECT * FROM user WHERE username=#{username}
     </select>
-    <insert id="createUser" parameterType="User" useGeneratedKeys="true" keyProperty="user.id">
-        INSERT INTO user(username,password,salt,locked) VALUES(#{user.username},#{user.password},#{user.salt},#{user.locked})
-    </insert>
-    <!--<update id=""/>-->
+    <!--权限的必要配置结束-->
 
-    <!--<delete id=""/>-->
+    <select id="findById" resultType="userBean">
+        SELECT * FROM user WHERE id=#{id}
+    </select>
+    <select id="findByCondition" resultType="java.util.HashMap">
+        SELECT
+        a.id,a.username,a.name,a.img,a.sex,a.phone,c.description roleName
+        FROM
+        user a
+        LEFT JOIN user_role b on a.id=b.user_id
+        LEFT JOIN role c on b.role_id=c.id
+        WHERE
+        a.useflag =1
+
+
+        <if test="condition.name != null and condition.name != '' " >
+           AND a.name like '%${condition.name}%'
+        </if>
+        <if test="condition.sex != null" >
+            AND a.sex=#{condition.sex}
+        </if>
+        <if test="condition.phone != null" >
+            AND a.phone=#{condition.phone}
+        </if>
+        <if test="condition.roles != null">
+            <foreach item="id" collection="condition.roles" open="AND c.role IN (" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+      order by a.insert_time desc
+    </select>
+    <select id="getPermissions" resultType="java.util.HashMap">
+       SELECT b.id,b.permission,b.sup_id,b.level,b.description
+        FROM role_permission a
+        JOIN permission b on a.permission_id=b.id
+        JOIN user_role c on a.role_id=c.role_id
+        WHERE c.user_id= #{userId} AND b.useflag AND <![CDATA[ level< 2 ]]>
+    </select>
+    <insert id="createUser" parameterType="UserBean" useGeneratedKeys="true" keyProperty="userBean.id">
+        INSERT INTO user(username,password,salt,name,img,sex,phone,useflag,insert_time,insert_id)
+        VALUES(#{userBean.username},#{userBean.password},#{userBean.salt},#{userBean.name},#{userBean.img},
+               #{userBean.sex},#{userBean.phone},#{userBean.useflag},now(),#{userBean.insertId})
+    </insert>
+    <insert id="addrole" >
+        INSERT INTO user_role(user_id,role_id) VALUES(#{userId},#{roleId})
+    </insert>
+
+    <select id="getAgent" resultType="java.util.HashMap">
+        SELECT a.id,a.name FROM user a
+                          LEFT JOIN user_role b on a.id=b.user_id
+                          JOIN role r on r.id=b.role_id
+        WHERE a.useflag=1 AND r.useflag=1 AND r.role='agent'
+    </select>
 
 
 </mapper>

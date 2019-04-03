@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.QuestionsDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="QuestionsBean" useGeneratedKeys="true" keyProperty="id">
+        insert into questions
+        (question,answer_a,answer_b,answer_c,answer_d,correct,useflag,insert_time,insert_id)
+        values
+        (#{question},#{answer_a},#{answer_b},#{answer_c},#{answer_d},#{correct},1,now(),#{insert_time},#{insert_id})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update questions SET
+        update_time=now()
+			<if test="question != null">,question=#{question}</if>
+			<if test="answerA != null">,answer_a=#{answerA}</if>
+			<if test="answerB != null">,answer_b=#{answerB}</if>
+			<if test="answerC != null">,answer_c=#{answerC}</if>
+			<if test="answerD != null">,answer_d=#{answerD}</if>
+			<if test="correct != null">,correct=#{correct}</if>
+			<if test="useflag != null">,useflag=#{useflag}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="QuestionsBean" >
+        update questions
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="QuestionsBean">
+        SELECT
+        *
+        FROM questions
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="QuestionsBean">
+        SELECT
+        *
+        FROM questions
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="QuestionsBean" >
+        SELECT
+        *
+        FROM questions
+        WHERE useflag=1
+            	<if test="item.id != null">AND id=#{item}</if>
+				<if test="item.question != null">AND question=#{item}</if>
+				<if test="item.answerA != null">AND answer_a=#{item}</if>
+				<if test="item.answerB != null">AND answer_b=#{item}</if>
+				<if test="item.answerC != null">AND answer_c=#{item}</if>
+				<if test="item.answerD != null">AND answer_d=#{item}</if>
+				<if test="item.correct != null">AND correct=#{item}</if>
+    </select>
+
+    <select id="randomSelect" resultType="java.util.HashMap">
+        SELECT id,question,answer_a,answer_b,answer_c,answer_d FROM questions WHERE useflag=1 ORDER BY rand() LIMIT 5
+    </select>
+
+    <select id="selectInIds" parameterType="java.util.List" resultType="QuestionsBean">
+            SELECT * FROM  questions
+        WHERE id IN
+        <foreach item="paperBean" collection="list" open="(" separator="," close=")">
+            #{paperBean.questionId}
+        </foreach>
+    </select>
+
+</mapper>

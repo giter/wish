@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.MachineDAO">
+
+
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="MachineBean" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_machine
+        (id,name,user_id,address,status,useflag,insert_time,insert_id,qrcode,width,height)
+        values
+            (#{id},#{name},#{userId},#{address},#{status},1,now(),#{insertId},#{qrcode},#{width},#{height})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update tb_machine
+        SET update_time=now()
+			<if test="name != null">,name=#{name}</if>
+			<if test="userId != null">,user_id=#{userId}</if>
+			<if test="address != null">,address=#{address}</if>
+			<if test="status != null">,status=#{status}</if>
+			<if test="useflag != null">,useflag=#{useflag}</if>
+			<if test="insertTime != null">,insert_time=#{insertTime}</if>
+			<if test="width != null">,width=#{width}</if>
+			<if test="height != null">,height=#{height}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="MachineBean" >
+        update tb_machine
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="MachineBean">
+        SELECT
+        m.*,u.name as userName
+        FROM tb_machine m
+        LEFT JOIN user u ON u.id=m.user_id
+        WHERE u.useflag=1 AND  m.useflag=1
+        <if test="id != null">
+            AND m.id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="MachineBean">
+        SELECT
+        *
+        FROM tb_machine
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="MachineBean" >
+        SELECT
+        m.*,u.name as userName
+        FROM tb_machine m
+        LEFT JOIN user u ON u.id=m.user_id
+        WHERE u.useflag=1 AND m.useflag=1
+				<if test="address != null">AND m.address=#{address}</if>
+				<if test="userId != null">AND m.user_id=#{userId}</if>
+				<if test="status != null">AND m.status=#{status}</if>
+				<if test="insertTime != null">AND m.insert_time=#{insertTime}</if>
+				<if test="userName != null">AND u.name like '%${userName}%'</if>
+				<if test="name != null and name != ''">AND m.name like '%${name}%'</if>
+        order by m.insert_time desc
+    </select>
+
+
+
+</mapper>

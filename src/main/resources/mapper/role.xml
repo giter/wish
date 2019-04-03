@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.RoleDAO">
+
+    <insert id="save" parameterType="RoleBean"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO role(role,description,insert_time,insert_id)
+                VALUES (#{role},#{description},now(),#{insertId})
+    </insert>
+    <update id="update">
+        UPDATE role SET
+            update_time=now()
+            <if test="role != null">,role=#{role}</if>
+            <if test="description != null">,description=#{description}</if>
+            <if test="updateId != null">,update_id=#{updateId}</if>
+        where id=#{id}
+
+    </update>
+    <update id="deletes">
+        UPDATE role SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultType="com.wish.bean.RoleBean">
+        SELECT * FROM role WHERE id=#{id} and useflag=1
+    </select>
+    <select id="findAll" resultType="com.wish.bean.RoleBean">
+        SELECT * FROM role WHERE useflag=1
+    </select>
+    <select id="query" resultType="com.wish.bean.RoleBean">
+        SELECT * FROM role WHERE useflag=1
+            <if test="role != null">
+                AND role=#{role}
+            </if>
+    </select>
+</mapper>

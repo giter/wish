@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="wish:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>wish</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="wish-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="wish:war exploded" />
+    </root>
+  </artifact>
+</component>

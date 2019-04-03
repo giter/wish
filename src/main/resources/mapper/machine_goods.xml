@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.MachineGoodsDAO">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="MachineGoodsBean" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_machine_goods
+        (machine_id,slot_no,key_num,status,stock,capacity,product_id,useflag,insert_time,insert_id)
+        values(
+           #{machineId},#{slotNo},#{keyNum},#{status},#{stock},#{capacity},#{productId},1,now(),#{insertId}
+        )
+    </insert>
+
+
+    <insert id="oldMachineSave" parameterType="java.util.List">
+        insert into tb_machine_goods
+                (machine_id,slot_no,key_num,status,stock,capacity,product_id,useflag,insert_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.machineId},#{item.slotNo},#{item.keyNum},#{item.status},#{item.stock},#{item.capacity},#{item.productId},1,now())
+        </foreach>
+    </insert>
+
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update tb_machine_goods
+        <set>
+            update_time=now(),
+			<if test="machineId != null">machine_id=#{machineId},</if>
+			<if test="slotNo != null">slot_no=#{slotNo},</if>
+			<if test="keyNum != null">key_num=#{keyNum},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="stock != null">stock=#{stock},</if>
+			<if test="capacity != null">capacity=#{capacity},</if>
+			<if test="productId != null">product_id=#{productId},</if>
+			<if test="updateId != null">update_id=#{updateId},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <update id="reduceSotck">
+        update tb_machine_goods
+        set
+            update_time=now(),
+            stock=stock - 1
+        where slot_no = #{slotNo} and machine_id=#{machineId}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="MachineGoodsBean" >
+        update tb_machine_goods
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="MachineGoodsBean">
+        SELECT
+        *
+        FROM tb_machine_goods
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="MachineGoodsBean">
+        SELECT
+        *
+        FROM tb_machine_goods
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="GoodsDetailBean" >
+        SELECT
+        m.*,p.*
+        FROM tb_machine_goods m
+        LEFT JOIN tb_product p ON m.product_id=p.id
+        WHERE m.useflag=1
+				<if test="machineId != null">AND m.machine_id=#{machineId}</if>
+				<if test="slotNo != null">AND m.slot_no=#{slotNo}</if>
+				<if test="keyNum != null">AND m.key_num=#{keyNum}</if>
+				<if test="status != null">AND m.status=#{status}</if>
+				<if test="stock != null">AND m.stock=#{stock}</if>
+				<if test="capacity != null">AND m.capacity=#{capacity}</if>
+				<if test="productId != null">AND m.product_id=#{productId}</if>
+				<if test="insertTime != null">AND m.insert_time=#{insertTime}</if>
+				<if test="insertId != null">AND m.insert_id=#{insertId}</if>
+				<if test="updateTime != null">AND m.update_time=#{updateTime}</if>
+				<if test="updateId != null">AND m.update_id=#{updateId}</if>
+			
+    </select>
+
+    <select id="getByMachineIdAndSlot" resultType="MachineGoodsBean">
+        SELECT
+        *
+        FROM tb_machine_goods
+        WHERE useflag=1
+        AND machine_id=#{machineId}
+        AND slot_no=#{soltNo}
+    </select>
+
+    <select id="queryGoodsByMachineId" resultType="java.util.Map">
+        SELECT m.machine_id,m.slot_no,m.status,m.stock,p.name,p.price,p.image_url FROM tb_machine_goods m
+            LEFT JOIN tb_product p on m.product_id=p.id
+        WHERE m.machine_id=#{machineId}
+    </select>
+
+</mapper>

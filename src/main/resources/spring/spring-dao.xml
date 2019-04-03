@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
- http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+ http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 <!--配置整合mybatis-->
     <!--1:配置数据库相关参数
         properties的属性 ${url}
@@ -10,7 +10,7 @@
     <context:property-placeholder location="classpath:jdbc.properties"/>
     <!--2:配置数据库的连接池-->
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <!-- 基本属性 url、user、password -->
+        <!-- 基本属性 url、userBean、password -->
         <property name="driverClassName" value="${jdbcdriver}" />
         <property name="url" value="${jdbcurl}" />
         <property name="username" value="${jdbcusername}" />
@@ -21,8 +21,8 @@
 
         <!-- 配置初始化大小、最小、最大 -->
         <property name="maxActive" value="20" />
-        <property name="initialSize" value="1" />
-        <property name="minIdle" value="1" />
+        <property name="initialSize" value="5" />
+        <property name="minIdle" value="5" />
 
         <!-- 配置获取连接等待超时的时间 -->
         <property name="maxWait" value="60000" />
@@ -51,7 +51,7 @@
         <!--扫描entity包，使用别名 com.ff.entity.student>student
         当有多个包时，用“;”来进行分割UserDAO
         -->
-        <property name="typeAliasesPackage"    value="com.demo.bean"/>
+        <property name="typeAliasesPackage"    value="com.wish.bean"/>
         <!--扫描sql配置文件：mapper需要的xml文件-->
         <property name="mapperLocations"    value="classpath:mapper/*.xml"/>
     </bean>
@@ -61,7 +61,13 @@
         <!-- 注入sqlSessionFactory 防止提前初始化-->
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
         <!-- 给出扫描dao接口包-->
-        <property name="basePackage" value="com.demo.dao"/>
+        <property name="basePackage" value="com.wish.dao"/>
     </bean>
 
+
+    <!--spring 事务支持-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="txManager" />
 </beans>

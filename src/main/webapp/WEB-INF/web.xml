@@ -38,10 +38,23 @@
     </servlet-mapping>
 
 
+    <!-- 字符过滤器 -->
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <!-- 跨域问题 过滤器 -->
     <filter>
         <filter-name>cors</filter-name>
-        <filter-class>com.demo.common.CorsFilter</filter-class>
+        <filter-class>com.wish.common.CorsFilter</filter-class>
         <async-supported>true</async-supported>
     </filter>
     <filter-mapping>

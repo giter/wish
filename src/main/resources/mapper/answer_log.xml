@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.AnswerLogDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="AnswerLogBean" useGeneratedKeys="true" keyProperty="id">
+        insert into answer_log
+        (wishlogid,point,buyer_id,useflag,insert_time,insert_id)
+        values
+        (#{wishlogid},#{point},#{buyerId},1,now(),#{insertId})
+    </insert>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="AnswerLogBean" >
+        SELECT
+        *
+        FROM answer_log
+        WHERE useflag=1
+				<if test="wishlogid != null">AND wishlogid=#{wishlogid}</if>
+				<if test="buyerId != null">AND buyer_id=#{buyerId}</if>
+    </select>
+
+
+</mapper>

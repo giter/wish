@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.WishlogDao">
+
+    <!-- 基本列 -->
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="WishlogBean" useGeneratedKeys="true" keyProperty="id">
+        insert into wishlog
+        (activity_id,wish_id,buyer_id,status,introduction,point,useflag,insert_time,insert_id)
+        values
+        (#{activityId},#{wishId},#{buyerId},#{status},#{introduction},#{point},1,now(),#{insertId})
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update wishlog SET
+        update_time=now()
+			<if test="activityId != null">,activity_id=#{activityId}</if>
+			<if test="wishId != null">,wish_id=#{wishId}</if>
+			<if test="buyerId != null">,buyer_id=#{buyerId}</if>
+			<if test="introduction != null">,introduction=#{introduction}</if>
+			<if test="point != null">,point=#{point}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+    <update id="addPoint">
+         update wishlog SET
+ point=point+${point}
+ WHERE id=#{wishLogId}
+
+    </update>
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="WishlogBean" >
+        update wishlog
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="WishlogBean">
+        SELECT
+        *
+        FROM wishlog
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="WishlogBean">
+        SELECT
+        *
+        FROM wishlog
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="java.util.HashMap" >
+        SELECT
+        a.num,
+        a.name,
+        c.nick_name as buyerName,
+        b.content as wish,
+        b.id as wishId,
+        w.id as wishLogId,
+        w.introduction,
+        w.point,
+        a.start_time as startTime,
+        a.end_time as endTime
+        FROM
+        wishlog w
+        LEFT JOIN activity a ON a.id=w.activity_id
+        LEFT JOIN ac_wish b ON b.id=w.wish_id
+        LEFT JOIN buyer c on c.id=w.buyer_id
+        WHERE w.useflag=1 and a.useflag=1
+            	<if test="id != null">AND w.id=#{id}</if>
+				<if test="activityId != null">AND w.activity_id=#{activityId}</if>
+				<if test="wishId != null">AND w.wish_id=#{wishId}</if>
+				<if test="wish != null and wish != '' ">AND b.content like '%${wish}%'</if>
+				<if test="buyerId != null">AND w.buyer_id=#{buyerId}</if>
+				<if test="buyerName != null">AND c.nick_name like '%${buyerName}%'</if>
+        order by w.point desc,a.start_time desc
+    </select>
+
+    <select id="rank" resultType="java.util.HashMap" >
+       SELECT
+        a.name,
+        c.avatar_url,
+        c.nick_name as buyerName,
+        b.content as wish,
+        w.id as wishLogId,
+        w.wish_id as wishId,
+        w.introduction,
+        w.point,
+        a.start_time as startTime,
+        a.end_time as endTime
+        FROM
+        wishlog w
+        LEFT JOIN activity a ON a.id=w.activity_id
+        LEFT JOIN ac_wish b ON b.id=w.wish_id
+        LEFT JOIN buyer c on c.id=w.buyer_id
+				WHERE a.id=#{activityId}
+				order by w.point desc,a.start_time desc
+				LIMIT 0,50
+    </select>
+
+    <select id="myRank" resultType="java.util.HashMap" >
+       SELECT
+        a.name,
+        c.avatar_url,
+        c.nick_name as buyerName,
+        b.content as wish,
+        w.id as wishLogId,
+        w.wish_id as wishId,
+        w.introduction,
+        w.point,
+        a.start_time as startTime,
+        a.end_time as endTime
+        FROM
+        wishlog w
+        LEFT JOIN activity a ON a.id=w.activity_id
+        LEFT JOIN ac_wish b ON b.id=w.wish_id
+        LEFT JOIN buyer c on c.id=w.buyer_id
+				WHERE a.id=#{activityId} AND w.buyer_id=#{buyerId}
+				order by w.point desc,a.start_time desc
+    </select>
+
+
+
+</mapper>

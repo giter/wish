@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wish.dao.GoodsOrderDao">
+
+    <!-- 保存 -->
+    <insert id="save" parameterType="GoodsOrderBean" useGeneratedKeys="true" keyProperty="id">
+        insert into goods_order
+        (pay_order_id,machine_id,slot_no,product_id,status,useflag,insert_time,insert_id)
+        values
+        (#{pay_order_id},#{machineId},#{slotNo},#{productId},#{status},1,now(),#{insert_id})
+    </insert>
+
+    <insert id="insertList" parameterType="GoodsOrderBean">
+         insert into goods_order
+        (pay_order_id,machine_id,slot_no,product_id,status,useflag,insert_time,insert_id,price)
+        values
+        <foreach item="item" collection="list"  separator="," >
+            (#{item.payOrderId},#{item.machineId},#{item.slotNo},#{item.productId},#{item.status},1,now(),#{item.insertId},#{item.price})
+        </foreach>
+    </insert>
+
+
+    <!-- 单个更新 -->
+    <update id="update">
+        update goods_order SET
+        update_time=now()
+			<if test="payOrderId != null">,pay_order_id=#{payOrderId}</if>
+			<if test="machineId != null">,machine_id=#{machineId}</if>
+			<if test="slotNo != null">,slot_no=#{slotNo}</if>
+			<if test="status != null">,status=#{status}</if>
+			<if test="updateId != null">,update_id=#{updateId}</if>
+        where id = #{id}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deletes" parameterType="GoodsOrderBean" >
+        update goods_order
+        SET useflag=0 WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+        #{id}
+        </foreach>
+    </update>
+    <update id="updateStatusByPayOrderId">
+         update goods_order
+        SET status = -2, update_time=now() WHERE pay_order_id=#{payOrederId} and status=-3
+    </update>
+
+    <!-- 单个查询 -->
+    <select id="findById" resultType="GoodsOrderBean">
+        SELECT
+        *
+        FROM goods_order
+        WHERE useflag=1
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+    </select>
+
+    <!-- 查询所有 -->
+    <select id="findAll"  resultType="GoodsOrderBean">
+        SELECT
+        *
+        FROM goods_order
+        WHERE useflag=1
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="query" resultType="GoodsOrderBean" >
+        SELECT
+        *
+        FROM goods_order
+        WHERE useflag=1
+				<if test="payOrderId != null">AND pay_order_id=#{payOrderId}</if>
+				<if test="machineId != null">AND machine_id=#{machineId}</if>
+				<if test="slotNo != null">AND slot_no=#{slotNo}</if>
+				<if test="status != null">AND status=#{status}</if>
+        order by insert_time desc
+    </select>
+
+    <select id="getOrderInfo" resultType="GoodsOrderBean">
+        SELECT  *  FROM  goods_order
+        WHERE  useflag=1 AND  machine_id= #{machineId} AND slot_no= #{slotNo} AND status=-1
+    </select>
+
+    <!--<select id="getOrderByPayId" resultType="java.util.HashMap">-->
+        <!---->
+    <!--</select>-->
+
+
+    <select id="querySale" resultType="java.util.HashMap">
+        SELECT b.id,b.name,SUM(a.price) money,count(*) num
+        FROM goods_order a
+        LEFT JOIN tb_machine b on a.machine_id = b.id
+        LEFT JOIN pay_order c on a.pay_order_id=c.id
+        WHERE 1=1
+        <if test="machineId != null and machineId != '' ">AND b.id=#{machineId}</if>
+        <if test="userId != null">AND b.user_id=#{userId}</if>
+        <if test="machineName != null and machineName != '' ">AND b.name=#{machineName}</if>
+        <if test="tradeNo != null">AND c.pay_trade_no=#{tradeNo}</if>
+        <if test="startTime != null and startTime != '' "> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d%H%i%s')>=DATE_FORMAT(#{startTime},'%Y%m%d%H%i%s') ]]></if>
+        <if test="endTime != null and endTime != '' "> <![CDATA[ AND DATE_FORMAT(a.insert_time,'%Y%m%d%H%i%s')<= DATE_FORMAT(#{endTime},'%Y%m%d%H%i%s') ]]></if>
+        GROUP BY b.id
+    </select>
+
+
+
+
+</mapper>
