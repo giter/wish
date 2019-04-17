@@ -24,6 +24,7 @@ import java.util.Map;
  */
 @Service
 public class PrizeService {
+
     Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Resource

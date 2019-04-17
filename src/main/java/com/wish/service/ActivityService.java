@@ -16,6 +16,7 @@ import java.util.Map;
 
 @Service
 public class ActivityService {
+
     Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Resource

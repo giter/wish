@@ -70,10 +70,6 @@ public class WxPayApi {
 
             String tradeNo = jsonObject.getString("out_trade_no");
             orderService.payFinish(tradeNo);
-
-            System.out.println("商户订单号"+jsonObject.getString("out_trade_no"));
-            System.out.println("支付完成时间"+jsonObject.getString("time_end"));
-            System.out.println(jsonObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
